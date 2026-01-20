@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mlops-enterprise-starter"
+version = "0.1.0"
+description = "Enterprise-grade open-source MLOps starter (Colab-safe)"
+requires-python = ">=3.10"
+dependencies = [
+  "numpy",
+  "pandas",
+  "scikit-learn",
+  "mlflow",
+  "pyyaml",
+  "typer",
+  "fastapi",
+  "uvicorn",
+  "prometheus-client",
+  "joblib",
+  "requests",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[project.scripts]
+mlops = "mlops_enterprise.cli:app"

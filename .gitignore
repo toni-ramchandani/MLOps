@@ -1,0 +1,15 @@
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+.env
+.venv/
+dist/
+build/
+*.egg-info/
+
+# local data/artifacts (choose what you want)
+data/raw/
+data/processed/
+reports/
+mlruns/
+mlflow.db

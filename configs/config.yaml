@@ -1,0 +1,28 @@
+project:
+  name: breast_cancer_enterprise_demo
+  random_state: 42
+
+data:
+  raw_path: data/raw/breast_cancer_raw.csv
+  train_path: data/processed/train.csv
+  val_path: data/processed/val.csv
+  test_path: data/processed/test.csv
+  reference_path: data/processed/reference.csv
+  feature_names_path: data/processed/feature_names.json
+  data_meta_path: data/processed/data_meta.json
+
+mlflow:
+  # Colab-safe: MLflow tracking + registry using SQLite backend store (no MLflow server needed)
+  tracking_uri: "sqlite:////content/enterprise_mlops_starter/mlflow.db"
+  experiment_name: "enterprise_demo"
+  registered_model_name: "breast_cancer_enterprise_lr"
+  artifact_root: "file:////content/enterprise_mlops_starter/mlruns"
+
+training:
+  params:
+    C: 1.0
+    max_iter: 2000
+    solver: "lbfgs"
+
+quality_gates:
+  min_val_roc_auc: 0.97
