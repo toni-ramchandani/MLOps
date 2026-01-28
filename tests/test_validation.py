@@ -1,6 +1,7 @@
 from sklearn.datasets import load_breast_cancer
 from mlops_enterprise.validation import validate_df
 
+
 def test_validation_passes():
     ds = load_breast_cancer(as_frame=True)
     df = ds.frame.copy().rename(columns={"target": "label"})

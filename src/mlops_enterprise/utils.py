@@ -2,6 +2,7 @@ from __future__ import annotations
 import hashlib
 from pathlib import Path
 
+
 def sha256_file(path: str) -> str:
     p = Path(path)
     h = hashlib.sha256()

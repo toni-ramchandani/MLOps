@@ -4,6 +4,7 @@ import yaml
 from dataclasses import dataclass
 from typing import Any, Dict
 
+
 @dataclass(frozen=True)
 class Settings:
     config: Dict[str, Any]
@@ -27,6 +28,7 @@ class Settings:
     @property
     def artifact_root(self) -> str:
         return self.config["mlflow"]["artifact_root"]
+
 
 def load_settings(path: str = "configs/config.yaml") -> Settings:
     with open(path, "r", encoding="utf-8") as f:

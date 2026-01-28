@@ -4,6 +4,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
+
 def _psi(ref: np.ndarray, cur: np.ndarray, bins: int = 10) -> float:
     ref = np.asarray(ref, dtype=float)
     cur = np.asarray(cur, dtype=float)
@@ -20,6 +21,7 @@ def _psi(ref: np.ndarray, cur: np.ndarray, bins: int = 10) -> float:
     cp = np.clip(cp, eps, 1)
     return float(np.sum((cp - rp) * np.log(cp / rp)))
 
+
 def _ks_stat(ref: np.ndarray, cur: np.ndarray) -> float:
     ref = np.sort(np.asarray(ref, dtype=float))
     cur = np.sort(np.asarray(cur, dtype=float))
@@ -28,7 +30,10 @@ def _ks_stat(ref: np.ndarray, cur: np.ndarray) -> float:
     cdf_c = np.searchsorted(cur, xs, side="right") / cur.size
     return float(np.max(np.abs(cdf_r - cdf_c)))
 
-def build_drift_report(reference_csv: str, current_csv: str, feature_names_json: str, out_html: str) -> dict:
+
+def build_drift_report(
+    reference_csv: str, current_csv: str, feature_names_json: str, out_html: str
+) -> dict:
     feature_cols = json.loads(Path(feature_names_json).read_text(encoding="utf-8"))
     ref = pd.read_csv(reference_csv)
     cur = pd.read_csv(current_csv)
@@ -37,13 +42,15 @@ def build_drift_report(reference_csv: str, current_csv: str, feature_names_json:
     for c in feature_cols:
         r = ref[c].astype(float).to_numpy()
         k = cur[c].astype(float).to_numpy()
-        rows.append({
-            "feature": c,
-            "psi": _psi(r, k),
-            "ks_stat": _ks_stat(r, k),
-            "ref_mean": float(np.mean(r)),
-            "cur_mean": float(np.mean(k)),
-        })
+        rows.append(
+            {
+                "feature": c,
+                "psi": _psi(r, k),
+                "ks_stat": _ks_stat(r, k),
+                "ref_mean": float(np.mean(r)),
+                "cur_mean": float(np.mean(k)),
+            }
+        )
 
     df = pd.DataFrame(rows).sort_values(["psi", "ks_stat"], ascending=False)
     Path(out_html).parent.mkdir(parents=True, exist_ok=True)

@@ -4,6 +4,7 @@ import mlflow
 from mlflow.tracking import MlflowClient
 from .settings import load_settings
 
+
 def _wait_ready(client: MlflowClient, name: str, version: str, timeout_s: int = 120) -> None:
     start = time.time()
     while True:
@@ -13,6 +14,7 @@ def _wait_ready(client: MlflowClient, name: str, version: str, timeout_s: int = 
         if time.time() - start > timeout_s:
             raise RuntimeError(f"Model version not READY after {timeout_s}s (status={mv.status})")
         time.sleep(1)
+
 
 def register_best_to_production(config_path: str = "configs/config.yaml") -> dict:
     s = load_settings(config_path)
@@ -24,7 +26,9 @@ def register_best_to_production(config_path: str = "configs/config.yaml") -> dic
     if exp is None:
         raise RuntimeError("Experiment not found. Run train first.")
 
-    runs = mlflow.search_runs([exp.experiment_id], order_by=["metrics.val_roc_auc DESC"], max_results=50)
+    runs = mlflow.search_runs(
+        [exp.experiment_id], order_by=["metrics.val_roc_auc DESC"], max_results=50
+    )
     if runs.empty:
         raise RuntimeError("No runs found. Run train first.")
 
@@ -43,4 +47,9 @@ def register_best_to_production(config_path: str = "configs/config.yaml") -> dic
         archive_existing_versions=True,
     )
 
-    return {"model_name": s.model_name, "version": mv.version, "run_id": run_id, "best_val_roc_auc": float(best["metrics.val_roc_auc"])}
+    return {
+        "model_name": s.model_name,
+        "version": mv.version,
+        "run_id": run_id,
+        "best_val_roc_auc": float(best["metrics.val_roc_auc"]),
+    }

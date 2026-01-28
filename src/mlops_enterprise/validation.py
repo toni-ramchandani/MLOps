@@ -2,8 +2,10 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 
+
 class DataValidationError(ValueError):
     pass
+
 
 def validate_df(df: pd.DataFrame, feature_cols: list[str]) -> pd.DataFrame:
     df = df.copy()

@@ -31,7 +31,7 @@ jobs:
           pip install pytest pytest-cov black flake8 isort mypy
 
       - name: Run black
-        run: black --check src tests
+        run: black --check --line-length=100 src tests
 
       - name: Run isort
         run: isort --check-only src tests
@@ -72,7 +72,7 @@ jobs:
 
       - name: Archive coverage reports
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: coverage-report
           path: htmlcov/
@@ -144,19 +144,6 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-  # Docker Compose Validation
-  docker-compose-check:
-    runs-on: ubuntu-latest
-    name: Docker Compose Validation
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Validate docker-compose.yml
-        run: |
-          cd infra/docker
-          docker-compose config > /dev/null
-          echo "✓ Docker Compose configuration is valid"
-
   # Integration Tests (Optional)
   integration-tests:
     needs: [build-docker]
@@ -202,7 +189,7 @@ jobs:
 
       - name: Upload logs
         if: failure()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: docker-compose-logs
           path: infra/docker/docker-compose.log

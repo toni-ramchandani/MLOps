@@ -8,6 +8,7 @@ from sklearn.model_selection import train_test_split
 from .settings import load_settings
 from .utils import sha256_file
 
+
 def prepare_data(config_path: str = "configs/config.yaml") -> dict:
     s = load_settings(config_path)
     cfg = s.config
@@ -27,8 +28,12 @@ def prepare_data(config_path: str = "configs/config.yaml") -> dict:
     df = ds.frame.copy().rename(columns={"target": "label"})
     df.to_csv(raw_path, index=False)
 
-    train_val, test = train_test_split(df, test_size=0.2, random_state=s.random_state, stratify=df["label"])
-    train, val = train_test_split(train_val, test_size=0.25, random_state=s.random_state, stratify=train_val["label"])
+    train_val, test = train_test_split(
+        df, test_size=0.2, random_state=s.random_state, stratify=df["label"]
+    )
+    train, val = train_test_split(
+        train_val, test_size=0.25, random_state=s.random_state, stratify=train_val["label"]
+    )
 
     train.to_csv(train_path, index=False)
     val.to_csv(val_path, index=False)
@@ -43,7 +48,11 @@ def prepare_data(config_path: str = "configs/config.yaml") -> dict:
         "data_hash_sha256": sha256_file(str(raw_path)),
         "rows_raw": int(df.shape[0]),
         "n_features": int(len(feature_cols)),
-        "split": {"train": int(train.shape[0]), "val": int(val.shape[0]), "test": int(test.shape[0])},
+        "split": {
+            "train": int(train.shape[0]),
+            "val": int(val.shape[0]),
+            "test": int(test.shape[0]),
+        },
     }
     meta_path.write_text(json.dumps(meta, indent=2), encoding="utf-8")
     return meta
