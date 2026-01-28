@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub Actions CI/CD Pipeline Visualizer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .section {
+            margin-bottom: 40px;
+        }
+        
+        .section h2 {
+            color: #333;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .icon {
+            font-size: 1.5em;
+        }
+        
+        .pipeline-flow {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stage {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .stage:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            border-left-color: #764ba2;
+        }
+        
+        .stage h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .stage-icon {
+            font-size: 1.3em;
+        }
+        
+        .stage-items {
+            list-style: none;
+            font-size: 0.9em;
+            color: #555;
+        }
+        
+        .stage-items li {
+            margin: 8px 0;
+            padding-left: 20px;
+            position: relative;
+        }
+        
+        .stage-items li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #667eea;
+            font-weight: bold;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+            margin-right: 8px;
+            margin-bottom: 10px;
+        }
+        
+        .status-success {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-info {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+        
+        .workflow-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        .workflow-table th {
+            background: #f8f9fa;
+            color: #333;
+            font-weight: 600;
+            padding: 15px;
+            text-align: left;
+            border-bottom: 2px solid #ddd;
+        }
+        
+        .workflow-table td {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .workflow-table tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .code-block {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 20px 0;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+        
+        .code-block code {
+            line-height: 1.5;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .button {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-size: 0.95em;
+        }
+        
+        .button:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .button-secondary {
+            background: #6c757d;
+        }
+        
+        .button-secondary:hover {
+            background: #5a6268;
+        }
+        
+        .timeline {
+            position: relative;
+            padding: 20px 0;
+        }
+        
+        .timeline-item {
+            display: flex;
+            margin-bottom: 20px;
+            position: relative;
+        }
+        
+        .timeline-marker {
+            width: 40px;
+            height: 40px;
+            background: #667eea;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            flex-shrink: 0;
+            margin-right: 20px;
+        }
+        
+        .timeline-content {
+            flex: 1;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+        }
+        
+        .timeline-content h4 {
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        .timeline-content p {
+            color: #666;
+            font-size: 0.9em;
+        }
+        
+        .trigger-badge {
+            display: inline-block;
+            background: #e7f3ff;
+            color: #0066cc;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+        
+        .footer {
+            background: #f8f9fa;
+            padding: 20px 40px;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+            border-top: 1px solid #ddd;
+        }
+        
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .metric-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .metric-value {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .metric-label {
+            font-size: 0.85em;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⚡ GitHub Actions CI/CD Pipeline</h1>
+            <p>MLOps Enterprise - Automated Testing, Security & Deployment</p>
+        </div>
+        
+        <div class="content">
+            <!-- Overview Section -->
+            <div class="section">
+                <h2><span class="icon">📊</span> Pipeline Overview</h2>
+                <p style="color: #666; margin-bottom: 20px;">
+                    Our automated CI/CD pipeline runs on every push and pull request, ensuring code quality, security, and reliability.
+                </p>
+                
+                <div class="metric-grid">
+                    <div class="metric-card">
+                        <div class="metric-value">~15min</div>
+                        <div class="metric-label">Total Duration</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value">4</div>
+                        <div class="metric-label">Parallel Jobs</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value">100%</div>
+                        <div class="metric-label">Automated</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value">Free</div>
+                        <div class="metric-label">Cost</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Pipeline Stages -->
+            <div class="section">
+                <h2><span class="icon">🔄</span> Pipeline Stages (Run in Parallel)</h2>
+                
+                <div class="pipeline-flow">
+                    <!-- Stage 1 -->
+                    <div class="stage">
+                        <h3><span class="stage-icon">🎨</span> Code Quality</h3>
+                        <div class="status-badge status-success">~2-3 min</div>
+                        <ul class="stage-items">
+                            <li>Black formatting</li>
+                            <li>isort import sort</li>
+                            <li>flake8 linting</li>
+                            <li>mypy type check</li>
+                        </ul>
+                    </div>
+                    
+                    <!-- Stage 2 -->
+                    <div class="stage">
+                        <h3><span class="stage-icon">✅</span> Unit Tests</h3>
+                        <div class="status-badge status-success">~2-3 min</div>
+                        <ul class="stage-items">
+                            <li>pytest runner</li>
+                            <li>Coverage report</li>
+                            <li>Codecov upload</li>
+                            <li>Artifact archive</li>
+                        </ul>
+                    </div>
+                    
+                    <!-- Stage 3 -->
+                    <div class="stage">
+                        <h3><span class="stage-icon">🔒</span> Security</h3>
+                        <div class="status-badge status-warning">~2 min</div>
+                        <ul class="stage-items">
+                            <li>Bandit audit</li>
+                            <li>Safety check</li>
+                            <li>Trivy scan</li>
+                            <li>SARIF report</li>
+                        </ul>
+                    </div>
+                    
+                    <!-- Stage 4 -->
+                    <div class="stage">
+                        <h3><span class="stage-icon">📦</span> Deploy</h3>
+                        <div class="status-badge status-info">~5-10 min</div>
+                        <ul class="stage-items">
+                            <li>Docker Buildx</li>
+                            <li>Push to GHCR</li>
+                            <li>Tag images</li>
+                            <li>On main only</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Workflows -->
+            <div class="section">
+                <h2><span class="icon">⚙️</span> Workflows & Triggers</h2>
+                
+                <table class="workflow-table">
+                    <thead>
+                        <tr>
+                            <th>Workflow</th>
+                            <th>Triggers</th>
+                            <th>Schedule</th>
+                            <th>Key Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>CI/CD Pipeline</strong></td>
+                            <td>
+                                <span class="trigger-badge">push main</span>
+                                <span class="trigger-badge">push develop</span>
+                                <span class="trigger-badge">pull request</span>
+                            </td>
+                            <td>On event</td>
+                            <td>Lint, Test, Security, (Deploy on main)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Security Scan</strong></td>
+                            <td>
+                                <span class="trigger-badge">scheduled</span>
+                                <span class="trigger-badge">manual</span>
+                            </td>
+                            <td>Weekly (Sundays)</td>
+                            <td>pip-audit, Trivy, SARIF upload</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Deploy to Production</strong></td>
+                            <td>
+                                <span class="trigger-badge">push main</span>
+                                <span class="trigger-badge">tags v*</span>
+                                <span class="trigger-badge">manual</span>
+                            </td>
+                            <td>On event</td>
+                            <td>Docker build, Push GHCR, Multi-tag</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Demo Workflow -->
+            <div class="section">
+                <h2><span class="icon">🎬</span> How to Trigger & Monitor</h2>
+                
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-marker">1</div>
+                        <div class="timeline-content">
+                            <h4>Make a Code Change</h4>
+                            <p>Commit and push to main/develop branch</p>
+                            <div class="code-block"><code>git commit -m "feat: add new feature"
+git push origin main</code></div>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <div class="timeline-marker">2</div>
+                        <div class="timeline-content">
+                            <h4>GitHub Actions Triggered</h4>
+                            <p>Pipeline automatically starts running all 4 jobs in parallel</p>
+                            <div class="code-block"><code>✓ Code Quality (started)
+✓ Unit Tests (started)
+✓ Security Scanning (started)
+✓ Deploy (queued, after others complete)</code></div>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <div class="timeline-marker">3</div>
+                        <div class="timeline-content">
+                            <h4>Monitor Progress</h4>
+                            <p>View real-time status on GitHub Actions tab or use GitHub CLI</p>
+                            <div class="code-block"><code># View all runs
+gh run list --repo toni-ramchandani/MLOps
+
+# View specific run
+gh run view &lt;run-id&gt; --log</code></div>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <div class="timeline-marker">4</div>
+                        <div class="timeline-content">
+                            <h4>Review Results</h4>
+                            <p>Check coverage reports, security alerts, and Docker images</p>
+                            <div class="code-block"><code>✓ Coverage: htmlcov/index.html (artifact)
+✓ Security: GitHub Security tab
+✓ Docker: ghcr.io/toni-ramchandani/mlops:main</code></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Links Section -->
+            <div class="section">
+                <h2><span class="icon">🔗</span> Quick Links</h2>
+                
+                <div class="button-group">
+                    <a href="https://github.com/toni-ramchandani/MLOps/actions" class="button">
+                        📊 View GitHub Actions
+                    </a>
+                    <a href="https://github.com/toni-ramchandani/MLOps" class="button">
+                        📁 View Repository
+                    </a>
+                    <a href="https://github.com/toni-ramchandani/MLOps/blob/main/CI_CD_SHOWCASE.md" class="button">
+                        📖 Read Full Guide
+                    </a>
+                    <a href="https://docs.github.com/en/actions" class="button button-secondary">
+                        📚 GitHub Actions Docs
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Status Badges -->
+            <div class="section">
+                <h2><span class="icon">🎖️</span> Status Badges for README</h2>
+                <p style="color: #666; margin-bottom: 15px;">
+                    Add these badges to your README to display CI/CD status:
+                </p>
+                
+                <div class="code-block"><code>![CI/CD Pipeline](https://github.com/toni-ramchandani/MLOps/actions/workflows/ci-cd.yml/badge.svg?branch=main)
+![Security Scan](https://github.com/toni-ramchandani/MLOps/actions/workflows/security-scan.yml/badge.svg)
+![Deploy](https://github.com/toni-ramchandani/MLOps/actions/workflows/deploy.yml/badge.svg?branch=main)</code></div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>💡 <strong>Tip:</strong> Workflows run in ~15 minutes total. All jobs run in parallel. Free for public repositories.</p>
+            <p style="margin-top: 10px; opacity: 0.7;">
+                See <a href="../DEMO.md" style="color: #667eea; text-decoration: none;">DEMO.md</a> for interactive testing or 
+                <a href="../DEPLOYMENT.md" style="color: #667eea; text-decoration: none;">DEPLOYMENT.md</a> for Kubernetes deployment.
+            </p>
+        </div>
+    </div>
+</body>
+</html>
