@@ -1,17 +1,17 @@
 from __future__ import annotations
+
 import json
 from pathlib import Path
-import numpy as np
-import pandas as pd
 
 import mlflow
 import mlflow.sklearn
+import numpy as np
+import pandas as pd
 from mlflow.models.signature import infer_signature
-
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score, f1_score, roc_auc_score
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
-from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import roc_auc_score, accuracy_score, f1_score
 
 from .settings import load_settings
 from .validation import validate_df

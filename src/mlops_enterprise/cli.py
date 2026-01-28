@@ -1,10 +1,12 @@
 from __future__ import annotations
+
 import typer
+
 from .data import prepare_data
-from .train import train_and_log
-from .registry import register_best_to_production
 from .monitoring import build_drift_report
+from .registry import register_best_to_production
 from .settings import load_settings
+from .train import train_and_log
 
 app = typer.Typer(help="Enterprise OSS MLOps CLI (Colab-safe)")
 

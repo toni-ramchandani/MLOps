@@ -1,17 +1,18 @@
 from __future__ import annotations
+
 import json
 import threading
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
+import mlflow
 import numpy as np
 import pandas as pd
 from fastapi import FastAPI
+from prometheus_client import CONTENT_TYPE_LATEST, Counter, Histogram, generate_latest
 from pydantic import BaseModel
-from prometheus_client import Counter, Histogram, generate_latest, CONTENT_TYPE_LATEST
 from starlette.responses import Response
 
-import mlflow
 from .settings import load_settings
 
 app = FastAPI(title="Enterprise OSS MLOps API", version="1.0.0")

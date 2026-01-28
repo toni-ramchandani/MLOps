@@ -1,8 +1,10 @@
 from __future__ import annotations
+
 import os
-import yaml
 from dataclasses import dataclass
 from typing import Any, Dict
+
+import yaml
 
 
 @dataclass(frozen=True)
