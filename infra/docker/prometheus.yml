@@ -23,9 +23,9 @@ scrape_configs:
       - targets: ['api:8000']
 
   - job_name: 'mlflow'
+    metrics_path: '/metrics'
     static_configs:
       - targets: ['mlflow:5000']
 
-  - job_name: 'postgres'
-    static_configs:
-      - targets: ['postgres:5432']
+  # Postgres is not an HTTP metrics endpoint; remove scraping to avoid connection errors.
+  # If you want Postgres metrics, run a Postgres exporter and point Prometheus at it.

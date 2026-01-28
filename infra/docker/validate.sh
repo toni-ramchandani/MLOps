@@ -3,7 +3,8 @@
 
 set -e
 
-COMPOSE_FILE="infra/docker/docker-compose.yml"
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+COMPOSE_FILE="$script_dir/docker-compose.yml"
 API_URL="http://localhost:8000"
 HEALTH_ENDPOINT="/docs"  # FastAPI's Swagger UI
 MAX_RETRIES=30

@@ -46,6 +46,8 @@ services:
       --backend-store-uri sqlite:////mlflow/mlflow.db
       --default-artifact-root /mlflow/artifacts
       --host 0.0.0.0
+      --allowed-hosts '*'
+      --cors-allowed-origins '*'
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5000/api/2.0/mlflow/version"]
       interval: 10s
