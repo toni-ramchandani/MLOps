@@ -13,3 +13,5 @@ data/processed/
 reports/
 mlruns/
 mlflow.db
+api.log
+mlflow_local.db
