@@ -22,15 +22,14 @@ RUN useradd -m -u 1000 mlops && \
     mkdir -p /app/logs && \
     chown -R mlops:mlops /app
 
+# Copy application code first
+COPY --chown=mlops:mlops . .
+
 # Install Python dependencies
-COPY pyproject.toml .
 RUN pip install --no-cache-dir -e . && \
     pip install --no-cache-dir \
     gunicorn \
     python-json-logger
-
-# Copy application code
-COPY --chown=mlops:mlops . .
 
 # Switch to non-root user
 USER mlops
