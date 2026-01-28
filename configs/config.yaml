@@ -12,11 +12,11 @@ data:
   data_meta_path: data/processed/data_meta.json
 
 mlflow:
-  # Colab-safe: MLflow tracking + registry using SQLite backend store (no MLflow server needed)
-  tracking_uri: "sqlite:////content/enterprise_mlops_starter/mlflow.db"
+  # MLflow tracking + registry using SQLite backend store (no MLflow server needed)
+  tracking_uri: "sqlite:///mlflow.db"
   experiment_name: "enterprise_demo"
   registered_model_name: "breast_cancer_enterprise_lr"
-  artifact_root: "file:////content/enterprise_mlops_starter/mlruns"
+  artifact_root: "mlruns"
 
 training:
   params:
